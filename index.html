@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IOT LOAD BALANCER | LIVE FIREBASE DATA</title>
+    <title>IOT LOAD BALANCER | SMART CONTROLLER WITH SETTINGS</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +30,6 @@
             padding: 20px;
         }
 
-        /* Main grid */
         .dashboard {
             max-width: 1600px;
             width: 100%;
@@ -39,7 +38,6 @@
             gap: 24px;
         }
 
-        /* Glass panel */
         .panel {
             background: rgba(15, 25, 45, 0.65);
             backdrop-filter: blur(16px);
@@ -55,7 +53,6 @@
             border-color: #2d9eff55;
         }
 
-        /* Titles */
         .title-sm {
             font-size: 0.75rem;
             font-weight: 700;
@@ -73,7 +70,6 @@
             color: #3d9cff;
         }
 
-        /* KPI tiles */
         .kpi-grid {
             display: flex;
             flex-wrap: wrap;
@@ -113,7 +109,67 @@
             margin-left: 4px;
         }
 
-        /* relays */
+        /* Settings Panel */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .setting-item {
+            background: #0f1b30;
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid #2d405f;
+        }
+
+        .setting-label {
+            font-size: 0.7rem;
+            color: #8aa1c9;
+            margin-bottom: 8px;
+        }
+
+        .setting-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-control {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .setting-btn {
+            background: #1e3350;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+
+        .setting-btn:hover {
+            background: #2d4a78;
+        }
+
+        .setting-input {
+            background: #0a1424;
+            border: 1px solid #3d5a82;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            width: 100px;
+            text-align: center;
+        }
+
         .relay-container {
             display: flex;
             gap: 22px;
@@ -141,14 +197,20 @@
             opacity: 0.7;
         }
 
+        .relay-card.warning {
+            border-color: #ffaa33;
+            box-shadow: 0 0 20px #ffaa3340;
+        }
+
         .relay-icon {
             font-size: 2.6rem;
             display: block;
             margin-bottom: 8px;
         }
 
-        .relay-card.on .relay-icon { color: #1ee0ac; text-shadow: 0 0 10px #1ee0ac; }
+        .relay-card.on .relay-icon { color: #1ee0ac; }
         .relay-card.off .relay-icon { color: #6b87af; }
+        .relay-card.warning .relay-icon { color: #ffaa33; }
 
         .relay-name {
             font-weight: 600;
@@ -165,7 +227,6 @@
             font-weight: 500;
         }
 
-        /* alert */
         .alert-box {
             background: #1c1f3a;
             border-radius: 40px;
@@ -175,6 +236,7 @@
             align-items: center;
             gap: 18px;
             backdrop-filter: blur(10px);
+            margin-bottom: 12px;
         }
 
         .alert-box.critical {
@@ -182,11 +244,15 @@
             border-color: #ff7979;
         }
 
+        .alert-box.warning {
+            background: #2e2a1a;
+            border-color: #ffbb33;
+        }
+
         .alert-box i {
             font-size: 2.2rem;
         }
 
-        /* charts */
         .chart-container {
             height: 220px;
             width: 100%;
@@ -199,7 +265,6 @@
             height: 220px !important;
         }
 
-        /* db snapshot */
         .db-row {
             display: flex;
             justify-content: space-between;
@@ -222,7 +287,6 @@
             border: 1px solid #28405f;
         }
 
-        /* footer */
         .footer-note {
             font-size: 0.7rem;
             color: #547099;
@@ -234,7 +298,6 @@
             padding-top: 18px;
         }
 
-        /* loading overlay */
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -286,7 +349,6 @@
             color: #ff7979;
         }
 
-        /* spans */
         .col-span-3 { grid-column: span 3; }
         .col-span-4 { grid-column: span 4; }
         .col-span-5 { grid-column: span 5; }
@@ -302,7 +364,6 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div style="text-align: center;">
             <div class="loader"></div>
@@ -310,24 +371,23 @@
         </div>
     </div>
 
-    <!-- Connection Status -->
     <div id="connectionStatus" class="connection-status disconnected">
         <i class="fas fa-circle"></i> Connecting...
     </div>
 
     <div class="dashboard" id="appDashboard">
-        <!-- HEADER : status + PZEM info -->
+        <!-- HEADER -->
         <div class="panel col-span-12" style="padding: 16px 30px; display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; gap: 20px; align-items: center;">
                 <div style="background: #103a5e; width: 58px; height: 58px; border-radius: 30px; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-bolt" style="font-size: 2.2rem; color: #b3dcff;"></i>
                 </div>
                 <div>
-                    <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: -0.5px;">Load<span style="color: #3a9eff;">Balancer</span> <span style="font-size: 0.9rem; background: #1e3555; padding: 3px 14px; border-radius: 40px; margin-left: 12px;">LIVE Firebase</span></h1>
+                    <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: -0.5px;">Load<span style="color: #3a9eff;">Balancer</span> <span style="font-size: 0.9rem; background: #1e3555; padding: 3px 14px; border-radius: 40px; margin-left: 12px;">v2.0 with Settings</span></h1>
                     <div style="display: flex; gap: 28px; font-size: 0.85rem; color: #98b1d4;">
                         <span><i class="fas fa-microchip"></i> ESP32 + PZEM004T</span>
                         <span><i class="fas fa-thermometer-half"></i> DS18B20</span>
-                        <span><i class="fas fa-cloud-upload-alt"></i> Real-time sync</span>
+                        <span><i class="fas fa-sliders-h"></i> Adjustable Limits</span>
                     </div>
                 </div>
             </div>
@@ -336,12 +396,12 @@
             </div>
         </div>
 
-        <!-- PRIMARY METRICS : voltage, current, power, energy, temperature -->
+        <!-- PRIMARY METRICS -->
         <div class="panel col-span-7">
-            <div class="title-sm"><i class="fas fa-chart-pie"></i> PZEM004T ELECTRICAL (live from Firebase)</div>
+            <div class="title-sm"><i class="fas fa-chart-pie"></i> REAL-TIME SENSOR DATA</div>
             <div class="kpi-grid">
                 <div class="kpi-item">
-                    <div class="kpi-label"><i class="fas fa-bolt" style="margin-right: 5px;"></i> Voltage</div>
+                    <div class="kpi-label"><i class="fas fa-bolt"></i> Voltage</div>
                     <div class="kpi-value" id="voltageVal">-- <span class="kpi-unit">V</span></div>
                 </div>
                 <div class="kpi-item">
@@ -357,14 +417,15 @@
                     <div class="kpi-value" id="energyVal">-- <span class="kpi-unit">kWh</span></div>
                 </div>
                 <div class="kpi-item">
-                    <div class="kpi-label"><i class="fas fa-thermometer-half"></i> Temp</div>
+                    <div class="kpi-label"><i class="fas fa-thermometer-half"></i> Temperature</div>
                     <div class="kpi-value" id="tempVal">-- <span class="kpi-unit">°C</span></div>
                 </div>
             </div>
-            <!-- power trend sparkline -->
+            <!-- Power Trend -->
             <div style="margin-top: 26px;">
                 <div style="display: flex; justify-content: space-between; color:#96b0d3; margin-bottom: 8px;">
                     <span><i class="fas fa-chart-line"></i> power trend (last 10 samples)</span>
+                    <span id="trendIndicator" style="font-size:0.8rem;">⚡ stable</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="powerSparkline"></canvas>
@@ -372,112 +433,140 @@
             </div>
         </div>
 
-        <!-- TEMPERATURE + ALERT + RELAY SUMMARY -->
+        <!-- SETTINGS PANEL - NEW -->
         <div class="panel col-span-5">
-            <div class="title-sm"><i class="fas fa-exclamation-triangle"></i> system status</div>
-            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
-                <div style="text-align: center; background: #0f1b2c; padding: 10px 22px; border-radius: 60px;">
-                    <div style="font-size: 3.4rem; font-weight: 300; display: flex;" id="tempLarge">--°C</div>
-                    <div style="color: #7c98c2;">DS18B20</div>
+            <div class="title-sm"><i class="fas fa-sliders-h"></i> ADJUSTABLE LIMITS (Live Update)</div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <div class="setting-label">P1 Max (Relay 1)</div>
+                    <div class="setting-value" id="p1Value">230 <span style="font-size:1rem;">W</span></div>
+                    <div class="setting-control">
+                        <button class="setting-btn" onclick="adjustSetting('P1_Max', -10)"><i class="fas fa-minus"></i></button>
+                        <input type="number" id="p1Input" class="setting-input" value="230" step="5">
+                        <button class="setting-btn" onclick="adjustSetting('P1_Max', 10)"><i class="fas fa-plus"></i></button>
+                    </div>
                 </div>
-                <div style="flex:1;" id="alertBoxContainer">
-                    <div class="alert-box" id="mainAlert">
-                        <i class="fas fa-shield-alt" style="color:#40c1ff;"></i>
-                        <div>
-                            <div style="font-weight: 600; font-size: 1.1rem;">NORMAL</div>
-                            <div style="font-size:0.8rem;">within thresholds</div>
-                        </div>
+                <div class="setting-item">
+                    <div class="setting-label">P2 Max (Relay 2)</div>
+                    <div class="setting-value" id="p2Value">460 <span style="font-size:1rem;">W</span></div>
+                    <div class="setting-control">
+                        <button class="setting-btn" onclick="adjustSetting('P2_Max', -10)"><i class="fas fa-minus"></i></button>
+                        <input type="number" id="p2Input" class="setting-input" value="460" step="5">
+                        <button class="setting-btn" onclick="adjustSetting('P2_Max', 10)"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="setting-item" style="grid-column: span 2;">
+                    <div class="setting-label">Temperature Limit</div>
+                    <div class="setting-value" id="tempLimitValue">60 <span style="font-size:1rem;">°C</span></div>
+                    <div class="setting-control">
+                        <button class="setting-btn" onclick="adjustSetting('Temp_Limit', -1)"><i class="fas fa-minus"></i></button>
+                        <input type="number" id="tempLimitInput" class="setting-input" value="60" step="1">
+                        <button class="setting-btn" onclick="adjustSetting('Temp_Limit', 1)"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
             </div>
-            <!-- relay quick view -->
-            <div style="margin-top: 28px;">
-                <div class="relay-container">
-                    <div class="relay-card" id="relay1Card">
-                        <i class="fas fa-plug relay-icon"></i>
-                        <div class="relay-name">RELAY 1</div>
-                        <span class="relay-badge" id="relay1Badge">OFF</span>
-                    </div>
-                    <div class="relay-card" id="relay2Card">
-                        <i class="fas fa-plug relay-icon"></i>
-                        <div class="relay-name">RELAY 2</div>
-                        <span class="relay-badge" id="relay2Badge">OFF</span>
+            <button onclick="updateAllSettings()" style="width:100%; margin-top:16px; background: #1e3f6e; border:none; color:white; padding:12px; border-radius:40px; cursor:pointer;">
+                <i class="fas fa-save"></i> UPDATE ALL SETTINGS TO FIREBASE
+            </button>
+        </div>
+
+        <!-- ALERTS AND RELAYS -->
+        <div class="panel col-span-4">
+            <div class="title-sm"><i class="fas fa-exclamation-triangle"></i> SYSTEM ALERTS</div>
+            <div id="alertsContainer">
+                <div class="alert-box" id="tempAlert">
+                    <i class="fas fa-thermometer-half"></i>
+                    <div>
+                        <div style="font-weight: 600;">Temperature OK</div>
+                        <div style="font-size:0.8rem;">below limit</div>
                     </div>
                 </div>
-                <div style="background: #0c172e; border-radius: 60px; padding: 14px 20px; margin-top: 14px; font-size:0.9rem; text-align:center;">
-                    <i class="fas fa-cogs" style="margin-right: 8px;"></i> Logic: ≤230W (R1), 231-460W (R2), >460W overload + buzzer
+                <div class="alert-box" id="powerAlert">
+                    <i class="fas fa-bolt"></i>
+                    <div>
+                        <div style="font-weight: 600;">Power OK</div>
+                        <div style="font-size:0.8rem;">within limits</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="title-sm" style="margin-top:20px;"><i class="fas fa-plug"></i> RELAY STATUS</div>
+            <div class="relay-container">
+                <div class="relay-card" id="relay1Card">
+                    <i class="fas fa-microchip relay-icon"></i>
+                    <div class="relay-name">RELAY 1</div>
+                    <span class="relay-badge" id="relay1Badge">OFF</span>
+                </div>
+                <div class="relay-card" id="relay2Card">
+                    <i class="fas fa-microchip relay-icon"></i>
+                    <div class="relay-name">RELAY 2</div>
+                    <span class="relay-badge" id="relay2Badge">OFF</span>
                 </div>
             </div>
         </div>
 
-        <!-- FIREBASE REAL TIME SNAPSHOT -->
+        <!-- FIREBASE PATHS -->
         <div class="panel col-span-4">
-            <div class="title-sm"><i class="fas fa-database"></i> firebase paths (real values)</div>
-            <div style="max-height: 280px; overflow-y: auto; padding-right: 8px;" id="firebasePaths">
-                <div class="db-row"><span class="db-path">/LoadBalance/Electrical/Voltage</span> <span class="db-value" id="dbVoltage">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Electrical/Current</span> <span class="db-value" id="dbCurrent">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Electrical/Power</span> <span class="db-value" id="dbPower">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Electrical/Energy_kWh</span> <span class="db-value" id="dbEnergy">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Temperature/DS18B20</span> <span class="db-value" id="dbTemp">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Loads/Relay1</span> <span class="db-value" id="dbRelay1">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Loads/Relay2</span> <span class="db-value" id="dbRelay2">--</span></div>
-                <div class="db-row"><span class="db-path">/LoadBalance/Alerts/OverPower</span> <span class="db-value" id="dbOverPower">--</span></div>
-            </div>
-            <div style="margin-top: 16px; background: #111e31; border-radius: 40px; padding: 12px;" id="syncStatus">
-                <i class="fas fa-sync-alt fa-spin" style="margin-right: 6px;"></i> listening for updates...
+            <div class="title-sm"><i class="fas fa-database"></i> FIREBASE LIVE PATHS</div>
+            <div style="max-height: 280px; overflow-y: auto;" id="firebasePaths">
+                <div class="db-row"><span class="db-path">/Electrical/Voltage</span> <span class="db-value" id="dbVoltage">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Current</span> <span class="db-value" id="dbCurrent">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Power</span> <span class="db-value" id="dbPower">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Energy_kWh</span> <span class="db-value" id="dbEnergy">--</span></div>
+                <div class="db-row"><span class="db-path">/Temperature/DS18B20</span> <span class="db-value" id="dbTemp">--</span></div>
+                <div class="db-row"><span class="db-path">/Loads/Relay1</span> <span class="db-value" id="dbRelay1">--</span></div>
+                <div class="db-row"><span class="db-path">/Loads/Relay2</span> <span class="db-value" id="dbRelay2">--</span></div>
+                <div class="db-row"><span class="db-path">/Alerts/OverTemp</span> <span class="db-value" id="dbOverTemp">--</span></div>
+                <div class="db-row"><span class="db-path">/Alerts/OverPower</span> <span class="db-value" id="dbOverPower">--</span></div>
+                <div class="db-row"><span class="db-path">/Settings/P1_Max</span> <span class="db-value" id="dbP1">--</span></div>
+                <div class="db-row"><span class="db-path">/Settings/P2_Max</span> <span class="db-value" id="dbP2">--</span></div>
+                <div class="db-row"><span class="db-path">/Settings/Temp_Limit</span> <span class="db-value" id="dbTempLimit">--</span></div>
             </div>
         </div>
 
-        <!-- BUZZER + POWER VISUALIZATION -->
+        <!-- BUZZER & POWER BAR -->
         <div class="panel col-span-4">
-            <div class="title-sm"><i class="fas fa-bell"></i> actuators & load bar</div>
+            <div class="title-sm"><i class="fas fa-bell"></i> ACTUATORS</div>
             <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 24px;">
                 <div style="background:#15273f; border-radius:50px; padding:14px 26px;">
-                    <i class="fas fa-volume-up" style="font-size:1.8rem; color:#bbb;"></i>
+                    <i class="fas fa-volume-up" style="font-size:1.8rem;" id="buzzerIcon"></i>
                     <span id="buzzerState" style="display: block; font-size: 0.8rem;">inactive</span>
                 </div>
                 <div style="flex:1; background: #0b172a; border-radius: 32px; padding: 14px;">
-                    <div><i class="fas fa-tachometer-alt"></i> power % (relative to 700W)</div>
+                    <div><i class="fas fa-tachometer-alt"></i> power level</div>
                     <div style="background:#142439; height:16px; border-radius:30px; margin:12px 0 6px;">
                         <div id="powerBar" style="width:0%; height:16px; background: linear-gradient(90deg, #309eff, #b066fe); border-radius:30px;"></div>
                     </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
+                        <span id="p1Indicator">P1: 0W</span>
+                        <span id="p2Indicator">P2: 0W</span>
+                    </div>
                 </div>
             </div>
-            <div style="display: flex; gap: 12px; color:#a7bfe6;">
-                <span><i class="fas fa-check-circle" style="color:#2ecc71;"></i> WiFi: Galaxy A52s</span>
-                <span><i class="fas fa-microchip"></i> UART2: 16,17</span>
+            <div style="background:#0c172e; border-radius: 40px; padding: 12px; font-size:0.8rem;">
+                <i class="fas fa-info-circle"></i> Logic: Power ≤ P1 → R1 ON | P1 < Power ≤ P2 → Both ON | Power > P2 → Overload
             </div>
         </div>
 
-        <!-- MANUAL CONTROL PANEL -->
-        <div class="panel col-span-4">
-            <div class="title-sm"><i class="fas fa-sliders-h"></i> manual override (simulated)</div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="simulateNormal" style="background: #1a3f5a; border: none; color: white; padding: 12px 20px; border-radius: 40px; cursor: pointer; flex:1;"><i class="fas fa-check"></i> Normal Load</button>
-                <button id="simulateOverload" style="background: #5a2a2a; border: none; color: white; padding: 12px 20px; border-radius: 40px; cursor: pointer; flex:1;"><i class="fas fa-exclamation"></i> Test Overload</button>
-            </div>
-            <p style="font-size:0.7rem; color:#7495c2; margin-top:12px;"><i class="fas fa-info-circle"></i> Buttons simulate Firebase writes for testing</p>
-        </div>
-
-        <!-- last update footer -->
+        <!-- FOOTER -->
         <div class="panel col-span-12" style="padding: 14px 26px;">
             <div class="footer-note">
-                <span><i class="fas fa-robot"></i> live data from Firebase Realtime Database</span>
-                <span id="updateFooter">⏱️ waiting for ESP32 data...</span>
+                <span><i class="fas fa-sync-alt fa-spin"></i> live from Firebase - updates every 3 seconds (ESP32 interval)</span>
+                <span id="updateFooter">⏱️ waiting for ESP32...</span>
             </div>
         </div>
     </div>
 
     <script>
-        // Your Firebase configuration (from your Arduino sketch)
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAzrdm4FXdDgvh3ZFPkaVBa4L2etUFaDjE",
             databaseURL: "https://iot-based-load-balance-default-rtdb.asia-southeast1.firebasedatabase.app",
             authDomain: "iot-based-load-balance.firebaseapp.com",
             projectId: "iot-based-load-balance",
             storageBucket: "iot-based-load-balance.appspot.com",
-            messagingSenderId: "109876543210", // You may need to update this
-            appId: "1:109876543210:web:your-app-id" // You may need to update this
+            messagingSenderId: "109876543210",
+            appId: "1:109876543210:web:your-app-id"
         };
 
         // Initialize Firebase
@@ -487,38 +576,56 @@
         // DOM Elements
         const loadingOverlay = document.getElementById('loadingOverlay');
         const connectionStatus = document.getElementById('connectionStatus');
-        const liveTimestamp = document.getElementById('liveTimestamp');
-        const updateFooter = document.getElementById('updateFooter');
-        const syncStatus = document.getElementById('syncStatus');
-
+        
         // KPI elements
         const voltageVal = document.getElementById('voltageVal');
         const currentVal = document.getElementById('currentVal');
         const powerVal = document.getElementById('powerVal');
         const energyVal = document.getElementById('energyVal');
         const tempVal = document.getElementById('tempVal');
-        const tempLarge = document.getElementById('tempLarge');
-
+        
+        // Settings elements
+        const p1Value = document.getElementById('p1Value');
+        const p2Value = document.getElementById('p2Value');
+        const tempLimitValue = document.getElementById('tempLimitValue');
+        const p1Input = document.getElementById('p1Input');
+        const p2Input = document.getElementById('p2Input');
+        const tempLimitInput = document.getElementById('tempLimitInput');
+        
         // Relay elements
         const relay1Card = document.getElementById('relay1Card');
         const relay2Card = document.getElementById('relay2Card');
         const relay1Badge = document.getElementById('relay1Badge');
         const relay2Badge = document.getElementById('relay2Badge');
-
-        // Firebase path elements
-        const dbVoltage = document.getElementById('dbVoltage');
-        const dbCurrent = document.getElementById('dbCurrent');
-        const dbPower = document.getElementById('dbPower');
-        const dbEnergy = document.getElementById('dbEnergy');
-        const dbTemp = document.getElementById('dbTemp');
-        const dbRelay1 = document.getElementById('dbRelay1');
-        const dbRelay2 = document.getElementById('dbRelay2');
-        const dbOverPower = document.getElementById('dbOverPower');
-
-        // Buzzer and power bar
+        
+        // Alert elements
+        const tempAlert = document.getElementById('tempAlert');
+        const powerAlert = document.getElementById('powerAlert');
+        const buzzerIcon = document.getElementById('buzzerIcon');
         const buzzerState = document.getElementById('buzzerState');
+        
+        // Firebase path elements
+        const dbElements = {
+            voltage: document.getElementById('dbVoltage'),
+            current: document.getElementById('dbCurrent'),
+            power: document.getElementById('dbPower'),
+            energy: document.getElementById('dbEnergy'),
+            temp: document.getElementById('dbTemp'),
+            relay1: document.getElementById('dbRelay1'),
+            relay2: document.getElementById('dbRelay2'),
+            overTemp: document.getElementById('dbOverTemp'),
+            overPower: document.getElementById('dbOverPower'),
+            p1: document.getElementById('dbP1'),
+            p2: document.getElementById('dbP2'),
+            tempLimit: document.getElementById('dbTempLimit')
+        };
+        
         const powerBar = document.getElementById('powerBar');
-        const alertBoxContainer = document.getElementById('alertBoxContainer');
+        const p1Indicator = document.getElementById('p1Indicator');
+        const p2Indicator = document.getElementById('p2Indicator');
+        const liveTimestamp = document.getElementById('liveTimestamp');
+        const updateFooter = document.getElementById('updateFooter');
+        const trendIndicator = document.getElementById('trendIndicator');
 
         // Chart setup
         const ctx = document.getElementById('powerSparkline').getContext('2d');
@@ -544,19 +651,12 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { 
-                    x: { display: false }, 
-                    y: { display: false, min: 0 }
-                },
-                animation: {
-                    duration: 0 // disable animation for faster updates
-                }
+                scales: { x: { display: false }, y: { display: false } }
             }
         });
 
-        // Track connection state
-        let connectedRef = database.ref('.info/connected');
-        connectedRef.on('value', (snap) => {
+        // Connection status
+        database.ref('.info/connected').on('value', (snap) => {
             if (snap.val() === true) {
                 connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Connected to Firebase';
                 connectionStatus.className = 'connection-status connected';
@@ -565,216 +665,202 @@
                     loadingOverlay.style.display = 'none';
                 }, 500);
             } else {
-                connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Disconnected - retrying...';
+                connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Disconnected';
                 connectionStatus.className = 'connection-status disconnected';
             }
         });
 
-        // Function to update UI with new data
+        // Update trend indicator
+        function updateTrend() {
+            if (powerHistory.length < 2) return;
+            const last = powerHistory[powerHistory.length - 1];
+            const prev = powerHistory[powerHistory.length - 2];
+            const diff = last - prev;
+            if (Math.abs(diff) < 5) trendIndicator.innerHTML = '⚡ stable';
+            else if (diff > 0) trendIndicator.innerHTML = '📈 rising';
+            else trendIndicator.innerHTML = '📉 falling';
+        }
+
+        // Update UI with Firebase data
         function updateUI(data) {
-            // Update KPI values
+            // Update KPI
             if (data.voltage !== undefined) {
                 voltageVal.innerHTML = data.voltage.toFixed(1) + ' <span class="kpi-unit">V</span>';
-                dbVoltage.innerText = data.voltage.toFixed(1) + ' V';
+                dbElements.voltage.innerText = data.voltage.toFixed(1) + ' V';
             }
-            
             if (data.current !== undefined) {
                 currentVal.innerHTML = data.current.toFixed(2) + ' <span class="kpi-unit">A</span>';
-                dbCurrent.innerText = data.current.toFixed(2) + ' A';
+                dbElements.current.innerText = data.current.toFixed(2) + ' A';
             }
-            
             if (data.power !== undefined) {
                 powerVal.innerHTML = Math.round(data.power) + ' <span class="kpi-unit">W</span>';
-                dbPower.innerText = Math.round(data.power) + ' W';
+                dbElements.power.innerText = Math.round(data.power) + ' W';
                 
-                // Update power history
                 powerHistory.push(data.power);
-                if (powerHistory.length > maxHistoryPoints) {
-                    powerHistory.shift();
-                }
+                if (powerHistory.length > maxHistoryPoints) powerHistory.shift();
                 sparkline.data.datasets[0].data = powerHistory;
                 sparkline.update();
+                updateTrend();
                 
-                // Update power bar (relative to 700W max for visual)
-                let percent = Math.min(100, (data.power / 700) * 100);
+                // Update power bar (relative to P2_Max or 700W)
+                const maxPower = data.p2_max || 700;
+                let percent = Math.min(100, (data.power / maxPower) * 100);
                 powerBar.style.width = percent + '%';
             }
-            
             if (data.energy !== undefined) {
                 energyVal.innerHTML = data.energy.toFixed(3) + ' <span class="kpi-unit">kWh</span>';
-                dbEnergy.innerText = data.energy.toFixed(3) + ' kWh';
+                dbElements.energy.innerText = data.energy.toFixed(3) + ' kWh';
             }
-            
             if (data.temperature !== undefined) {
                 tempVal.innerHTML = data.temperature.toFixed(1) + ' <span class="kpi-unit">°C</span>';
-                tempLarge.innerHTML = data.temperature.toFixed(1) + '°C';
-                dbTemp.innerText = data.temperature.toFixed(1) + ' °C';
+                dbElements.temp.innerText = data.temperature.toFixed(1) + ' °C';
             }
-            
-            // Update relay states
+
+            // Update settings
+            if (data.p1_max !== undefined) {
+                p1Value.innerHTML = data.p1_max + ' <span style="font-size:1rem;">W</span>';
+                p1Input.value = data.p1_max;
+                dbElements.p1.innerText = data.p1_max + ' W';
+                p1Indicator.innerText = `P1: ${data.p1_max}W`;
+            }
+            if (data.p2_max !== undefined) {
+                p2Value.innerHTML = data.p2_max + ' <span style="font-size:1rem;">W</span>';
+                p2Input.value = data.p2_max;
+                dbElements.p2.innerText = data.p2_max + ' W';
+                p2Indicator.innerText = `P2: ${data.p2_max}W`;
+            }
+            if (data.temp_limit !== undefined) {
+                tempLimitValue.innerHTML = data.temp_limit + ' <span style="font-size:1rem;">°C</span>';
+                tempLimitInput.value = data.temp_limit;
+                dbElements.tempLimit.innerText = data.temp_limit + ' °C';
+            }
+
+            // Update relays
             if (data.relay1 !== undefined) {
-                dbRelay1.innerText = data.relay1 ? 'true' : 'false';
+                dbElements.relay1.innerText = data.relay1 ? 'true' : 'false';
                 if (data.relay1) {
                     relay1Card.classList.add('on');
-                    relay1Card.classList.remove('off');
+                    relay1Card.classList.remove('off', 'warning');
                     relay1Badge.innerText = 'ON';
                 } else {
                     relay1Card.classList.add('off');
-                    relay1Card.classList.remove('on');
+                    relay1Card.classList.remove('on', 'warning');
                     relay1Badge.innerText = 'OFF';
                 }
             }
-            
             if (data.relay2 !== undefined) {
-                dbRelay2.innerText = data.relay2 ? 'true' : 'false';
+                dbElements.relay2.innerText = data.relay2 ? 'true' : 'false';
                 if (data.relay2) {
                     relay2Card.classList.add('on');
-                    relay2Card.classList.remove('off');
+                    relay2Card.classList.remove('off', 'warning');
                     relay2Badge.innerText = 'ON';
                 } else {
                     relay2Card.classList.add('off');
-                    relay2Card.classList.remove('on');
+                    relay2Card.classList.remove('on', 'warning');
                     relay2Badge.innerText = 'OFF';
                 }
             }
-            
-            // Update overload status and buzzer
-            if (data.overload !== undefined) {
-                dbOverPower.innerText = data.overload ? 'true' : 'false';
-                
-                if (data.overload) {
-                    alertBoxContainer.innerHTML = `
-                        <div class="alert-box critical" id="mainAlert">
-                            <i class="fas fa-exclamation-circle" style="color:#ff7b7b;"></i>
-                            <div>
-                                <div style="font-weight: 600; font-size: 1.2rem;">OVER POWER</div>
-                                <div style="font-size:0.8rem;">power >460W · buzzer ON</div>
-                            </div>
-                        </div>
-                    `;
-                    buzzerState.innerHTML = '⚠️ ACTIVE (HIGH)';
+
+            // Update alerts and buzzer
+            if (data.overTemp !== undefined) {
+                dbElements.overTemp.innerText = data.overTemp ? 'true' : 'false';
+                if (data.overTemp) {
+                    tempAlert.className = 'alert-box critical';
+                    tempAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i><div><div style="font-weight:600;">TEMPERATURE ALERT</div><div style="font-size:0.8rem;">exceeded limit</div></div>';
                 } else {
-                    alertBoxContainer.innerHTML = `
-                        <div class="alert-box" id="mainAlert">
-                            <i class="fas fa-shield-alt" style="color:#40c1ff;"></i>
-                            <div>
-                                <div style="font-weight: 600; font-size: 1.1rem;">NORMAL</div>
-                                <div style="font-size:0.8rem;">within thresholds</div>
-                            </div>
-                        </div>
-                    `;
-                    buzzerState.innerHTML = 'inactive (LOW)';
+                    tempAlert.className = 'alert-box';
+                    tempAlert.innerHTML = '<i class="fas fa-thermometer-half"></i><div><div style="font-weight:600;">Temperature OK</div><div style="font-size:0.8rem;">below limit</div></div>';
                 }
             }
             
+            if (data.overPower !== undefined) {
+                dbElements.overPower.innerText = data.overPower ? 'true' : 'false';
+                if (data.overPower) {
+                    powerAlert.className = 'alert-box critical';
+                    powerAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i><div><div style="font-weight:600;">POWER OVERLOAD</div><div style="font-size:0.8rem;">exceeded P2 max</div></div>';
+                    buzzerIcon.style.color = '#ff7979';
+                    buzzerState.innerHTML = '⚠️ ACTIVE';
+                } else {
+                    powerAlert.className = 'alert-box';
+                    powerAlert.innerHTML = '<i class="fas fa-bolt"></i><div><div style="font-weight:600;">Power OK</div><div style="font-size:0.8rem;">within limits</div></div>';
+                    buzzerIcon.style.color = '#bbb';
+                    buzzerState.innerHTML = 'inactive';
+                }
+            }
+
+            // Handle buzzer for overtemp
+            if (data.overTemp) {
+                buzzerIcon.style.color = '#ff7979';
+                buzzerState.innerHTML = '⚠️ ACTIVE';
+            }
+
             // Update timestamp
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { 
-                hour12: false, 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-            });
+            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             liveTimestamp.innerHTML = `<i class="far fa-clock"></i> ${timeStr}`;
             updateFooter.innerText = '⏱️ last update: ' + timeStr;
-            syncStatus.innerHTML = '<i class="fas fa-check-circle" style="color:#28e0a8;"></i> live sync active';
         }
 
-        // Listen for all Firebase data changes
-        function setupFirebaseListeners() {
-            const rootRef = database.ref('/LoadBalance');
-            
-            rootRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    console.log('Firebase update:', data);
-                    
-                    // Extract all values with proper error handling
-                    const updateData = {
-                        voltage: data.Electrical?.Voltage,
-                        current: data.Electrical?.Current,
-                        power: data.Electrical?.Power,
-                        energy: data.Electrical?.Energy_kWh,
-                        temperature: data.Temperature?.DS18B20,
-                        relay1: data.Loads?.Relay1,
-                        relay2: data.Loads?.Relay2,
-                        overload: data.Alerts?.OverPower
-                    };
-                    
-                    updateUI(updateData);
-                }
-            }, (error) => {
-                console.error('Firebase read error:', error);
-                syncStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ff7979;"></i> connection error';
-            });
-        }
-
-        // Manual control buttons (for testing - writes to Firebase)
-        document.getElementById('simulateNormal').addEventListener('click', () => {
-            const testData = {
-                voltage: 225,
-                current: 1.8,
-                power: 405,
-                energy: 2.45,
-                temperature: 24.5,
-                relay1: false,
-                relay2: true,
-                overload: false
+        // Global function for settings adjustment
+        window.adjustSetting = function(setting, delta) {
+            const inputMap = {
+                'P1_Max': p1Input,
+                'P2_Max': p2Input,
+                'Temp_Limit': tempLimitInput
             };
-            
-            // Write to Firebase to test
+            const input = inputMap[setting];
+            if (input) {
+                let newVal = parseFloat(input.value) + delta;
+                if (setting === 'Temp_Limit' && newVal < 30) newVal = 30;
+                if (setting === 'Temp_Limit' && newVal > 100) newVal = 100;
+                if (setting.includes('P') && newVal < 100) newVal = 100;
+                if (setting.includes('P') && newVal > 1000) newVal = 1000;
+                input.value = newVal;
+            }
+        };
+
+        window.updateAllSettings = function() {
             const updates = {};
-            updates['/LoadBalance/Electrical/Voltage'] = testData.voltage;
-            updates['/LoadBalance/Electrical/Current'] = testData.current;
-            updates['/LoadBalance/Electrical/Power'] = testData.power;
-            updates['/LoadBalance/Electrical/Energy_kWh'] = testData.energy;
-            updates['/LoadBalance/Temperature/DS18B20'] = testData.temperature;
-            updates['/LoadBalance/Loads/Relay1'] = testData.relay1;
-            updates['/LoadBalance/Loads/Relay2'] = testData.relay2;
-            updates['/LoadBalance/Alerts/OverPower'] = testData.overload;
+            updates['/LoadBalance/Settings/P1_Max'] = parseFloat(p1Input.value);
+            updates['/LoadBalance/Settings/P2_Max'] = parseFloat(p2Input.value);
+            updates['/LoadBalance/Settings/Temp_Limit'] = parseFloat(tempLimitInput.value);
             
             database.ref().update(updates)
                 .then(() => {
-                    console.log('Test normal data written');
+                    alert('Settings updated successfully!');
                 })
                 .catch(error => {
-                    console.error('Write error:', error);
+                    alert('Error updating settings: ' + error.message);
                 });
-        });
+        };
 
-        document.getElementById('simulateOverload').addEventListener('click', () => {
-            const testData = {
-                voltage: 235,
-                current: 2.5,
-                power: 587,
-                energy: 3.12,
-                temperature: 25.8,
-                relay1: false,
-                relay2: false,
-                overload: true
-            };
-            
-            const updates = {};
-            updates['/LoadBalance/Electrical/Voltage'] = testData.voltage;
-            updates['/LoadBalance/Electrical/Current'] = testData.current;
-            updates['/LoadBalance/Electrical/Power'] = testData.power;
-            updates['/LoadBalance/Electrical/Energy_kWh'] = testData.energy;
-            updates['/LoadBalance/Temperature/DS18B20'] = testData.temperature;
-            updates['/LoadBalance/Loads/Relay1'] = testData.relay1;
-            updates['/LoadBalance/Loads/Relay2'] = testData.relay2;
-            updates['/LoadBalance/Alerts/OverPower'] = testData.overload;
-            
-            database.ref().update(updates)
-                .then(() => {
-                    console.log('Test overload data written');
-                })
-                .catch(error => {
-                    console.error('Write error:', error);
-                });
+        // Listen for all Firebase data
+        const rootRef = database.ref('/LoadBalance');
+        rootRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                console.log('Firebase update:', data);
+                
+                const updateData = {
+                    voltage: data.Electrical?.Voltage,
+                    current: data.Electrical?.Current,
+                    power: data.Electrical?.Power,
+                    energy: data.Electrical?.Energy_kWh,
+                    temperature: data.Temperature?.DS18B20,
+                    relay1: data.Loads?.Relay1,
+                    relay2: data.Loads?.Relay2,
+                    overTemp: data.Alerts?.OverTemp,
+                    overPower: data.Alerts?.OverPower,
+                    p1_max: data.Settings?.P1_Max,
+                    p2_max: data.Settings?.P2_Max,
+                    temp_limit: data.Settings?.Temp_Limit
+                };
+                
+                updateUI(updateData);
+            }
+        }, (error) => {
+            console.error('Firebase error:', error);
         });
-
-        // Initialize
-        setupFirebaseListeners();
     </script>
 </body>
 </html>
