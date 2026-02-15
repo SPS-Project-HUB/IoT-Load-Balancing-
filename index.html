@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IOT Load Balancer • Edge Controller</title>
+    <title>IOT LOAD BALANCER | PZEM004T + DS18B20</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Chart.js for live graphs (ultra clean) -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -17,202 +17,218 @@
         }
 
         body {
-            background: #0b0f17;
-            font-family: "Inter", system-ui, -apple-system, sans-serif;
-            color: #eef2fb;
-            padding: 24px;
+            background: radial-gradient(circle at 20% 30%, #0c1122, #03050b);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #eef5ff;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
+        /* Main grid */
         .dashboard {
-            max-width: 1400px;
+            max-width: 1600px;
             width: 100%;
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            gap: 22px;
+            gap: 24px;
         }
 
-        /* glassmorphic card style */
-        .card {
-            background: rgba(18, 25, 40, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(72, 120, 255, 0.15);
-            border-radius: 32px;
-            padding: 24px 22px;
-            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.06);
-            transition: transform 0.2s ease, border-color 0.2s;
+        /* Glass panel */
+        .panel {
+            background: rgba(15, 25, 45, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 180, 255, 0.18);
+            border-radius: 42px;
+            padding: 28px 26px;
+            box-shadow: 0 35px 65px -15px #00000080, inset 0 1px 2px #ffffff1a;
+            transition: 0.25s ease;
         }
 
-        .card:hover {
-            border-color: rgba(0, 180, 255, 0.3);
+        .panel:hover {
+            border-color: #2d9eff55;
         }
 
-        /* header / titles */
-        .section-title {
+        /* Titles */
+        .title-sm {
             font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-            color: #8b9bb8;
-            margin-bottom: 14px;
+            letter-spacing: 2px;
+            color: #7f9bc0;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .section-title i {
+        .title-sm i {
             font-size: 1rem;
-            color: #2d9eff;
+            color: #3d9cff;
         }
 
-        /* metric tiles */
-        .metric-grid {
+        /* KPI tiles */
+        .kpi-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 18px;
         }
 
-        .metric-item {
-            background: rgba(0, 15, 30, 0.5);
-            border-radius: 26px;
-            padding: 16px 18px;
-            flex: 1 1 130px;
-            border: 1px solid #263045;
-            box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
+        .kpi-item {
+            background: #0d1428cc;
+            border-radius: 32px;
+            padding: 20px 20px;
+            flex: 1 1 140px;
+            border: 1px solid #25344f;
+            box-shadow: inset 0 3px 6px #00000080;
         }
 
-        .metric-label {
+        .kpi-label {
             font-size: 0.7rem;
-            font-weight: 500;
-            color: #95aac9;
+            font-weight: 600;
+            color: #93adcf;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
-        .metric-value {
-            font-size: 2.1rem;
-            font-weight: 600;
+        .kpi-value {
+            font-size: 2.4rem;
+            font-weight: 700;
             line-height: 1.2;
             display: flex;
             align-items: baseline;
             gap: 5px;
         }
 
-        .metric-unit {
-            font-size: 0.9rem;
+        .kpi-unit {
+            font-size: 0.95rem;
             font-weight: 400;
-            color: #7389b4;
+            color: #7b94b5;
+            margin-left: 4px;
         }
 
-        .badge {
-            background: #1f314f;
-            border-radius: 40px;
-            padding: 6px 14px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            border: 1px solid #2c405e;
-        }
-
-        /* relay indicators */
-        .relay-panel {
+        /* relays */
+        .relay-container {
             display: flex;
-            gap: 18px;
-            margin-top: 8px;
+            gap: 22px;
+            margin-top: 12px;
         }
 
-        .relay {
+        .relay-card {
             flex: 1;
-            background: #0f1a28;
-            border-radius: 40px;
-            padding: 20px 10px;
+            background: #0d1b28;
+            border-radius: 100px;
+            padding: 28px 10px;
             text-align: center;
             border: 1px solid;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
 
-        .relay.on {
-            border-color: #1ee0ac;
-            box-shadow: 0 0 15px #1ee0ac40;
-            background: linear-gradient(145deg, #0e2428, #0b1f2a);
+        .relay-card.on {
+            border-color: #28e0a8;
+            box-shadow: 0 0 20px #1ee0ac40;
+            background: linear-gradient(145deg, #0b2025, #0c1c28);
         }
 
-        .relay.off {
-            border-color: #4d5c74;
-            opacity: 0.6;
+        .relay-card.off {
+            border-color: #374a64;
+            opacity: 0.7;
         }
 
-        .relay i {
-            font-size: 2rem;
+        .relay-icon {
+            font-size: 2.6rem;
             display: block;
             margin-bottom: 8px;
         }
 
-        .relay.on i { color: #1ee0ac; text-shadow: 0 0 8px #1ee0ac; }
-        .relay.off i { color: #6f85a8; }
+        .relay-card.on .relay-icon { color: #1ee0ac; text-shadow: 0 0 10px #1ee0ac; }
+        .relay-card.off .relay-icon { color: #6b87af; }
 
-        .relay-label {
-            font-weight: 500;
-            font-size: 1rem;
+        .relay-name {
+            font-weight: 600;
+            font-size: 1.2rem;
         }
 
-        .relay-status {
-            font-size: 0.8rem;
-            background: #1e2b3d;
+        .relay-badge {
+            background: #192f44;
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 30px;
-            margin-top: 8px;
+            padding: 6px 22px;
+            border-radius: 40px;
+            margin-top: 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        /* alert banner */
-        .alert-banner {
+        /* alert */
+        .alert-box {
+            background: #1c1f3a;
             border-radius: 40px;
-            background: rgba(255, 70, 70, 0.1);
-            border: 1px solid rgba(255, 90, 90, 0.3);
-            padding: 12px 24px;
+            padding: 18px 28px;
+            border: 1px solid;
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-weight: 500;
-            backdrop-filter: blur(8px);
+            gap: 18px;
+            backdrop-filter: blur(10px);
         }
 
-        .alert-banner.critical {
-            background: rgba(220, 40, 40, 0.25);
-            border-color: #ff5e5e;
+        .alert-box.critical {
+            background: #2e1a2a;
+            border-color: #ff7979;
         }
 
-        .alert-banner i {
-            font-size: 1.6rem;
-            color: #ff7777;
+        .alert-box i {
+            font-size: 2.2rem;
         }
 
-        /* chart container */
+        /* charts */
         .chart-container {
-            height: 200px;
+            height: 220px;
             width: 100%;
-            margin-top: 10px;
-            position: relative;
+            margin-top: 6px;
         }
 
         canvas {
             display: block;
             width: 100% !important;
-            height: 200px !important;
+            height: 220px !important;
         }
 
-        /* footer / update time */
-        .update-time {
+        /* db snapshot */
+        .db-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #2d3b58;
+            padding: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .db-path {
+            color: #8da4d0;
+            font-family: 'Menlo', monospace;
+            font-size: 0.8rem;
+        }
+
+        .db-value {
+            font-weight: 600;
+            background: #0b1625;
+            padding: 2px 14px;
+            border-radius: 40px;
+            border: 1px solid #28405f;
+        }
+
+        /* footer */
+        .footer-note {
             font-size: 0.7rem;
-            color: #5e7392;
-            text-align: right;
-            margin-top: 12px;
-            border-top: 1px dashed #263862;
-            padding-top: 12px;
+            color: #547099;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #1f3147;
+            margin-top: 18px;
+            padding-top: 18px;
         }
 
         /* spans */
@@ -222,60 +238,66 @@
         .col-span-6 { grid-column: span 6; }
         .col-span-7 { grid-column: span 7; }
         .col-span-8 { grid-column: span 8; }
-        .col-span-9 { grid-column: span 9; }
         .col-span-12 { grid-column: span 12; }
 
         @media (max-width: 1000px) {
             .dashboard { grid-template-columns: 1fr; }
-            .col-span-3, .col-span-4, .col-span-5, .col-span-6, .col-span-7, .col-span-8, .col-span-9, .col-span-12 { grid-column: span 1; }
+            [class*="col-span"] { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard" id="dashboard">
+    <div class="dashboard" id="appDashboard">
 
-        <!-- HEADER ROW: title & overview -->
-        <div class="card col-span-12" style="padding: 18px 28px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 18px;">
-                <div style="background: #123458; width: 48px; height: 48px; border-radius: 30px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-bolt" style="font-size: 1.8rem; color: #a0d8ff;"></i>
+        <!-- HEADER : status + PZEM info -->
+        <div class="panel col-span-12" style="padding: 16px 30px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div style="background: #103a5e; width: 58px; height: 58px; border-radius: 30px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bolt" style="font-size: 2.2rem; color: #b3dcff;"></i>
                 </div>
                 <div>
-                    <h1 style="font-weight: 600; font-size: 1.7rem; letter-spacing: -0.5px;">LoadBalancer <span style="color: #3e9eff; font-weight: 300;">Edge</span></h1>
-                    <div style="display: flex; gap: 18px; font-size: 0.8rem; color: #90a4c9;">
-                        <span><i class="fas fa-microchip"></i> ESP32 · DS18B20</span>
+                    <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: -0.5px;">Load<span style="color: #3a9eff;">Balancer</span> <span style="font-size: 0.9rem; background: #1e3555; padding: 3px 14px; border-radius: 40px; margin-left: 12px;">PZEM004T</span></h1>
+                    <div style="display: flex; gap: 28px; font-size: 0.85rem; color: #98b1d4;">
+                        <span><i class="fas fa-microchip"></i> ESP32 + DS18B20</span>
                         <span><i class="fas fa-cloud-upload-alt"></i> Firebase RTDB</span>
+                        <span><i class="fas fa-ruler"></i> Real PZEM data</span>
                     </div>
                 </div>
             </div>
-            <div class="badge" id="liveTimestamp"><i class="far fa-clock"></i> connecting...</div>
+            <div style="background: #0b1c30; border-radius: 60px; padding: 12px 24px; border: 1px solid #2a4a78;" id="liveTimestamp">
+                <i class="far fa-clock"></i> connecting...
+            </div>
         </div>
 
-        <!-- ELECTRICAL METRICS (voltage, current, power, energy) -->
-        <div class="card col-span-5">
-            <div class="section-title"><i class="fas fa-chart-line"></i> electrical primary</div>
-            <div class="metric-grid">
-                <div class="metric-item">
-                    <div class="metric-label"><i class="fas fa-bolt" style="margin-right: 4px;"></i> voltage</div>
-                    <div class="metric-value" id="voltageVal">-- <span class="metric-unit">V</span></div>
+        <!-- PRIMARY METRICS : voltage, current, power, energy, temperature -->
+        <div class="panel col-span-7">
+            <div class="title-sm"><i class="fas fa-chart-pie"></i> PZEM004T ELECTRICAL (live)</div>
+            <div class="kpi-grid">
+                <div class="kpi-item">
+                    <div class="kpi-label"><i class="fas fa-bolt" style="margin-right: 5px;"></i> Voltage</div>
+                    <div class="kpi-value" id="voltageVal">-- <span class="kpi-unit">V</span></div>
                 </div>
-                <div class="metric-item">
-                    <div class="metric-label"><i class="fas fa-water"></i> current</div>
-                    <div class="metric-value" id="currentVal">-- <span class="metric-unit">A</span></div>
+                <div class="kpi-item">
+                    <div class="kpi-label"><i class="fas fa-wave-square"></i> Current</div>
+                    <div class="kpi-value" id="currentVal">-- <span class="kpi-unit">A</span></div>
                 </div>
-                <div class="metric-item">
-                    <div class="metric-label"><i class="fas fa-bolt"></i> power</div>
-                    <div class="metric-value" id="powerVal">-- <span class="metric-unit">W</span></div>
+                <div class="kpi-item">
+                    <div class="kpi-label"><i class="fas fa-bolt"></i> Power</div>
+                    <div class="kpi-value" id="powerVal">-- <span class="kpi-unit">W</span></div>
                 </div>
-                <div class="metric-item">
-                    <div class="metric-label"><i class="fas fa-clock"></i> energy</div>
-                    <div class="metric-value" id="energyVal">-- <span class="metric-unit">kWh</span></div>
+                <div class="kpi-item">
+                    <div class="kpi-label"><i class="fas fa-clock"></i> Energy</div>
+                    <div class="kpi-value" id="energyVal">-- <span class="kpi-unit">kWh</span></div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label"><i class="fas fa-thermometer-half"></i> Temp</div>
+                    <div class="kpi-value" id="tempVal">-- <span class="kpi-unit">°C</span></div>
                 </div>
             </div>
-            <!-- mini sparkline (will be chart) -->
-            <div style="margin-top: 18px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span class="section-title" style="margin-bottom:0;"><i class="fas fa-wave-square"></i> power trend (last 6)</span>
+            <!-- power trend sparkline -->
+            <div style="margin-top: 26px;">
+                <div style="display: flex; justify-content: space-between; color:#96b0d3; margin-bottom: 8px;">
+                    <span><i class="fas fa-chart-line"></i> power trend (last 6 samples)</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="powerSparkline"></canvas>
@@ -283,129 +305,150 @@
             </div>
         </div>
 
-        <!-- TEMPERATURE & OVERLOAD ALERT -->
-        <div class="card col-span-4">
-            <div class="section-title"><i class="fas fa-thermometer-half"></i> temperature & alerts</div>
-            <div style="display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
-                <div style="text-align: center;">
-                    <div style="font-size: 3.8rem; font-weight: 300; display: flex; align-items: baseline;" id="tempVal">-- <span style="font-size: 1.4rem; margin-left: 5px;">°C</span></div>
-                    <div style="color: #7895c2;">DS18B20</div>
+        <!-- TEMPERATURE + ALERT + RELAY SUMMARY -->
+        <div class="panel col-span-5">
+            <div class="title-sm"><i class="fas fa-exclamation-triangle"></i> system status</div>
+            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                <div style="text-align: center; background: #0f1b2c; padding: 10px 22px; border-radius: 60px;">
+                    <div style="font-size: 3.4rem; font-weight: 300; display: flex;" id="tempLarge">--°C</div>
+                    <div style="color: #7c98c2;">DS18B20</div>
                 </div>
-                <div style="flex:1;">
-                    <div style="background: #1b253c; border-radius: 30px; padding: 14px;">
-                        <div style="font-size: 0.7rem; color:#9eb2da;">STATUS</div>
-                        <div style="font-size: 1.3rem; font-weight: 600; display: flex; align-items: center; gap:10px;" id="alertStatus">
-                            <i class="fas fa-check-circle" style="color:#2ecc71;"></i> <span>NORMAL</span>
+                <div style="flex:1;" id="alertBoxContainer">
+                    <div class="alert-box" id="mainAlert">
+                        <i class="fas fa-shield-alt" style="color:#40c1ff;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">NORMAL</div>
+                            <div style="font-size:0.8rem;">within thresholds</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- alert banner placeholder -->
-            <div id="alertBannerContainer" style="margin-top: 18px;"></div>
-        </div>
-
-        <!-- RELAY STATES -->
-        <div class="card col-span-3">
-            <div class="section-title"><i class="fas fa-toggle-on"></i> load relays</div>
-            <div class="relay-panel">
-                <div class="relay" id="relay1">
-                    <i class="fas fa-plug"></i>
-                    <span class="relay-label">RELAY 1</span>
-                    <span class="relay-status" id="relay1Status">OFF</span>
-                </div>
-                <div class="relay" id="relay2">
-                    <i class="fas fa-plug"></i>
-                    <span class="relay-label">RELAY 2</span>
-                    <span class="relay-status" id="relay2Status">OFF</span>
-                </div>
-            </div>
-            <div style="margin-top: 16px; background: #101b2b; border-radius: 30px; padding: 12px; text-align: center; font-size:0.85rem;">
-                <i class="fas fa-random" style="margin-right: 8px;"></i> logic: ≤230W (R1), 231-460W (R2), >460W overload
-            </div>
-        </div>
-
-        <!-- SECOND ROW: more details, virtual pins -->
-        <div class="card col-span-7">
-            <div class="section-title"><i class="fas fa-database"></i> realtime database snapshot</div>
-            <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 12px;">
-                <div><span style="color:#7495c2;">/LoadBalance/Electrical/Voltage</span> <span style="float:right;" id="fbVoltage">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Electrical/Current</span> <span style="float:right;" id="fbCurrent">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Electrical/Power</span> <span style="float:right;" id="fbPower">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Electrical/Energy_kWh</span> <span style="float:right;" id="fbEnergy">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Temperature/DS18B20</span> <span style="float:right;" id="fbTemp">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Alerts/OverPower</span> <span style="float:right;" id="fbOverload">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Loads/Relay1</span> <span style="float:right;" id="fbR1">--</span></div>
-                <div><span style="color:#7495c2;">/LoadBalance/Loads/Relay2</span> <span style="float:right;" id="fbR2">--</span></div>
-            </div>
-        </div>
-
-        <div class="card col-span-5">
-            <div class="section-title"><i class="fas fa-microchip"></i> system & logic</div>
-            <div style="display: flex; gap: 16px; flex-direction: column;">
-                <div style="background: #162133; border-radius: 24px; padding: 16px;">
-                    <div><i class="fas fa-tachometer-alt"></i> power distribution</div>
-                    <div style="width:100%; background:#0a111f; height:12px; border-radius:20px; margin:10px 0;">
-                        <div id="powerBar" style="width:0%; height:12px; background: linear-gradient(90deg, #1eb0ff, #a05eff); border-radius:20px;"></div>
+            <!-- relay quick view -->
+            <div style="margin-top: 28px;">
+                <div class="relay-container">
+                    <div class="relay-card" id="relay1Card">
+                        <i class="fas fa-plug relay-icon"></i>
+                        <div class="relay-name">RELAY 1</div>
+                        <span class="relay-badge" id="relay1Badge">OFF</span>
                     </div>
-                    <div style="display:flex; justify-content: space-between;">
-                        <span>R1 threshold 230W</span>
-                        <span>R2 threshold 460W</span>
+                    <div class="relay-card" id="relay2Card">
+                        <i class="fas fa-plug relay-icon"></i>
+                        <div class="relay-name">RELAY 2</div>
+                        <span class="relay-badge" id="relay2Badge">OFF</span>
                     </div>
                 </div>
-                <div><i class="fas fa-wifi"></i> WiFi: Galaxy A52s (connected) </div>
-                <div><i class="fas fa-bell"></i> buzzer (overpower) : <span id="buzzerSim">--</span></div>
+                <div style="background: #0c172e; border-radius: 60px; padding: 14px 20px; margin-top: 14px; font-size:0.9rem; text-align:center;">
+                    <i class="fas fa-cogs" style="margin-right: 8px;"></i> Logic: ≤230W (R1), 231-460W (R2), >460W overload + buzzer
+                </div>
             </div>
         </div>
 
-        <!-- UPDATE FOOTER -->
-        <div class="card col-span-12" style="padding: 12px 22px;">
-            <div class="update-time" id="updateFooter">
-                <i class="fas fa-sync-alt" style="margin-right: 6px;"></i> last update: -- 
+        <!-- FIREBASE REAL TIME SNAPSHOT -->
+        <div class="panel col-span-4">
+            <div class="title-sm"><i class="fas fa-database"></i> firebase paths</div>
+            <div style="max-height: 280px; overflow-y: auto; padding-right: 8px;">
+                <div class="db-row"><span class="db-path">/Electrical/Voltage</span> <span class="db-value" id="dbVoltage">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Current</span> <span class="db-value" id="dbCurrent">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Power</span> <span class="db-value" id="dbPower">--</span></div>
+                <div class="db-row"><span class="db-path">/Electrical/Energy_kWh</span> <span class="db-value" id="dbEnergy">--</span></div>
+                <div class="db-row"><span class="db-path">/Temperature/DS18B20</span> <span class="db-value" id="dbTemp">--</span></div>
+                <div class="db-row"><span class="db-path">/Loads/Relay1</span> <span class="db-value" id="dbRelay1">--</span></div>
+                <div class="db-row"><span class="db-path">/Loads/Relay2</span> <span class="db-value" id="dbRelay2">--</span></div>
+                <div class="db-row"><span class="db-path">/Alerts/OverPower</span> <span class="db-value" id="dbOverPower">--</span></div>
+            </div>
+            <div style="margin-top: 16px; background: #111e31; border-radius: 40px; padding: 12px;">
+                <i class="fas fa-sync-alt fa-spin" style="margin-right: 6px;"></i> sync every 5s (matching ESP32)
+            </div>
+        </div>
+
+        <!-- BUZZER + POWER VISUALIZATION -->
+        <div class="panel col-span-4">
+            <div class="title-sm"><i class="fas fa-bell"></i> actuators & load bar</div>
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 24px;">
+                <div style="background:#15273f; border-radius:50px; padding:14px 26px;">
+                    <i class="fas fa-volume-up" style="font-size:1.8rem; color:#bbb;"></i>
+                    <span id="buzzerState" style="display: block; font-size: 0.8rem;">inactive</span>
+                </div>
+                <div style="flex:1; background: #0b172a; border-radius: 32px; padding: 14px;">
+                    <div><i class="fas fa-tachometer-alt"></i> power % (max 700W)</div>
+                    <div style="background:#142439; height:16px; border-radius:30px; margin:12px 0 6px;">
+                        <div id="powerBar" style="width:0%; height:16px; background: linear-gradient(90deg, #309eff, #b066fe); border-radius:30px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; color:#a7bfe6;">
+                <span><i class="fas fa-check-circle" style="color:#2ecc71;"></i> WiFi: Galaxy A52s</span>
+                <span><i class="fas fa-microchip"></i> UART2: 16,17</span>
+            </div>
+        </div>
+
+        <!-- last update footer -->
+        <div class="panel col-span-12" style="padding: 14px 26px;">
+            <div class="footer-note">
+                <span><i class="fas fa-robot"></i> emulated PZEM & DS18B20 data flow (matches arduino sketch)</span>
+                <span id="updateFooter">⏱️ waiting for update...</span>
             </div>
         </div>
     </div>
 
     <script>
         (function() {
-            // ---------- MOCK FIREBASE SIMULATION (based on ESP32 pattern) ----------
-            // This mimics the exact data structure from the arduino sketch
-
-            // internal state (start with defaults)
+            // ------- MOCK DATA GENERATOR following exactly the arduino logic (PZEM + relay control) -------
             let state = {
-                voltage: 227,
-                current: 2,
-                power: 227,
-                energy: 0.43,
-                temperature: 24.8,
+                voltage: 221.5,
+                current: 1.8,
+                power: 398,     // 221.5*1.8 ≈ 398
+                energy: 1.24,
+                temperature: 24.3,
                 relay1: false,
-                relay2: false,
+                relay2: true,
                 overload: false
             };
 
-            // history for sparkline (last 6 power values)
-            let powerHistory = [227, 254, 198, 312, 277, 230];
+            // ensure initial relay/overload consistent with power
+            function applyRelayLogic() {
+                let p = state.power;
+                if (p <= 230) {
+                    state.relay1 = true;
+                    state.relay2 = false;
+                    state.overload = false;
+                } else if (p > 230 && p <= 460) {
+                    state.relay1 = false;
+                    state.relay2 = true;
+                    state.overload = false;
+                } else {
+                    state.relay1 = false;
+                    state.relay2 = false;
+                    state.overload = true;
+                }
+            }
+            applyRelayLogic();
 
-            // DOM elements
+            // power history for sparkline (last 6)
+            let powerHistory = [state.power, 412, 378, 445, 290, 332];
+
+            // DOM references
             const voltageEl = document.getElementById('voltageVal');
             const currentEl = document.getElementById('currentVal');
             const powerEl = document.getElementById('powerVal');
             const energyEl = document.getElementById('energyVal');
             const tempEl = document.getElementById('tempVal');
-            const relay1Div = document.getElementById('relay1');
-            const relay2Div = document.getElementById('relay2');
-            const relay1Status = document.getElementById('relay1Status');
-            const relay2Status = document.getElementById('relay2Status');
-            const alertStatusDiv = document.getElementById('alertStatus');
-            const alertBannerContainer = document.getElementById('alertBannerContainer');
-            const fbVoltage = document.getElementById('fbVoltage');
-            const fbCurrent = document.getElementById('fbCurrent');
-            const fbPower = document.getElementById('fbPower');
-            const fbEnergy = document.getElementById('fbEnergy');
-            const fbTemp = document.getElementById('fbTemp');
-            const fbOverload = document.getElementById('fbOverload');
-            const fbR1 = document.getElementById('fbR1');
-            const fbR2 = document.getElementById('fbR2');
-            const buzzerSim = document.getElementById('buzzerSim');
+            const tempLarge = document.getElementById('tempLarge');
+            const relay1Card = document.getElementById('relay1Card');
+            const relay2Card = document.getElementById('relay2Card');
+            const relay1Badge = document.getElementById('relay1Badge');
+            const relay2Badge = document.getElementById('relay2Badge');
+            const mainAlert = document.getElementById('mainAlert');
+            const alertBoxContainer = document.getElementById('alertBoxContainer');
+            const dbVoltage = document.getElementById('dbVoltage');
+            const dbCurrent = document.getElementById('dbCurrent');
+            const dbPower = document.getElementById('dbPower');
+            const dbEnergy = document.getElementById('dbEnergy');
+            const dbTemp = document.getElementById('dbTemp');
+            const dbRelay1 = document.getElementById('dbRelay1');
+            const dbRelay2 = document.getElementById('dbRelay2');
+            const dbOverPower = document.getElementById('dbOverPower');
+            const buzzerState = document.getElementById('buzzerState');
             const powerBar = document.getElementById('powerBar');
             const liveTimestamp = document.getElementById('liveTimestamp');
             const updateFooter = document.getElementById('updateFooter');
@@ -417,14 +460,13 @@
                 data: {
                     labels: ['', '', '', '', '', ''],
                     datasets: [{
-                        label: 'Power (W)',
                         data: powerHistory,
-                        borderColor: '#3e9eff',
-                        backgroundColor: 'rgba(62,158,255,0.1)',
+                        borderColor: '#55b1ff',
+                        backgroundColor: '#1e3f70a0',
                         tension: 0.2,
                         pointRadius: 3,
-                        pointBackgroundColor: '#c8d9ff',
-                        borderWidth: 2,
+                        pointBackgroundColor: '#b3d9ff',
+                        borderWidth: 3,
                         fill: true
                     }]
                 },
@@ -432,144 +474,124 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { x: { display: false }, y: { display: false, min: 0 } },
-                    elements: { line: { borderJoinStyle: 'round' } }
+                    scales: { x: { display: false }, y: { display: false, min: 0 } }
                 }
             });
 
-            // helper to update relays UI
-            function updateRelayUI() {
-                // relay1
+            function updateUI() {
+                // main KPI
+                voltageEl.innerHTML = state.voltage.toFixed(1) + ' <span class="kpi-unit">V</span>';
+                currentEl.innerHTML = state.current.toFixed(2) + ' <span class="kpi-unit">A</span>';
+                powerEl.innerHTML = Math.round(state.power) + ' <span class="kpi-unit">W</span>';
+                energyEl.innerHTML = state.energy.toFixed(3) + ' <span class="kpi-unit">kWh</span>';
+                tempEl.innerHTML = state.temperature.toFixed(1) + ' <span class="kpi-unit">°C</span>';
+                tempLarge.innerHTML = state.temperature.toFixed(1) + '°C';
+
+                // relays
                 if (state.relay1) {
-                    relay1Div.classList.add('on'); relay1Div.classList.remove('off');
-                    relay1Status.innerText = 'ON'; relay1Status.style.background = '#1e4a3b';
+                    relay1Card.classList.add('on'); relay1Card.classList.remove('off');
+                    relay1Badge.innerText = 'ON';
                 } else {
-                    relay1Div.classList.add('off'); relay1Div.classList.remove('on');
-                    relay1Status.innerText = 'OFF'; relay1Status.style.background = '#1e2b3d';
+                    relay1Card.classList.add('off'); relay1Card.classList.remove('on');
+                    relay1Badge.innerText = 'OFF';
                 }
-                // relay2
                 if (state.relay2) {
-                    relay2Div.classList.add('on'); relay2Div.classList.remove('off');
-                    relay2Status.innerText = 'ON'; relay2Status.style.background = '#1e4a3b';
+                    relay2Card.classList.add('on'); relay2Card.classList.remove('off');
+                    relay2Badge.innerText = 'ON';
                 } else {
-                    relay2Div.classList.add('off'); relay2Div.classList.remove('on');
-                    relay2Status.innerText = 'OFF'; relay2Status.style.background = '#1e2b3d';
+                    relay2Card.classList.add('off'); relay2Card.classList.remove('on');
+                    relay2Badge.innerText = 'OFF';
                 }
 
-                // Firebase text snap
-                fbR1.innerText = state.relay1 ? 'true' : 'false';
-                fbR2.innerText = state.relay2 ? 'true' : 'false';
-            }
-
-            // update overload alert
-            function updateAlert() {
-                const isOver = state.overload;
-                fbOverload.innerText = isOver ? 'true' : 'false';
-                if (isOver) {
-                    alertStatusDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#ff6e6e;"></i> <span style="color:#ffb0b0;">OVER POWER</span>`;
-                    alertBannerContainer.innerHTML = `<div class="alert-banner critical"><i class="fas fa-exclamation-circle"></i> <span>⚠️ CRITICAL: Power exceeds 460W — both relays OFF, buzzer ACTIVE</span></div>`;
-                    buzzerSim.innerText = 'ACTIVE (HIGH)';
+                // alert & buzzer
+                if (state.overload) {
+                    alertBoxContainer.innerHTML = `
+                        <div class="alert-box critical" id="mainAlert">
+                            <i class="fas fa-exclamation-circle" style="color:#ff7b7b;"></i>
+                            <div>
+                                <div style="font-weight: 600; font-size: 1.2rem;">OVER POWER</div>
+                                <div style="font-size:0.8rem;">power >460W · buzzer ON</div>
+                            </div>
+                        </div>
+                    `;
+                    buzzerState.innerHTML = '⚠️ ACTIVE (HIGH)';
                 } else {
-                    alertStatusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> <span>NORMAL</span>`;
-                    alertBannerContainer.innerHTML = `<div class="alert-banner"><i class="fas fa-check-shield" style="color:#6fcf97;"></i> <span>All parameters within range. No overload.</span></div>`;
-                    buzzerSim.innerText = 'inactive (LOW)';
+                    alertBoxContainer.innerHTML = `
+                        <div class="alert-box" id="mainAlert">
+                            <i class="fas fa-shield-alt" style="color:#40c1ff;"></i>
+                            <div>
+                                <div style="font-weight: 600; font-size: 1.1rem;">NORMAL</div>
+                                <div style="font-size:0.8rem;">within thresholds</div>
+                            </div>
+                        </div>
+                    `;
+                    buzzerState.innerHTML = 'inactive (LOW)';
                 }
-            }
 
-            // full UI refresh from state
-            function refreshUI() {
-                // big metrics
-                voltageEl.innerHTML = state.voltage + ' <span class="metric-unit">V</span>';
-                currentEl.innerHTML = state.current + ' <span class="metric-unit">A</span>';
-                powerEl.innerHTML = state.power + ' <span class="metric-unit">W</span>';
-                energyEl.innerHTML = state.energy.toFixed(3) + ' <span class="metric-unit">kWh</span>';
-                tempEl.innerHTML = state.temperature.toFixed(1) + ' <span style="font-size:1.4rem;">°C</span>';
+                // firebase paths
+                dbVoltage.innerText = state.voltage.toFixed(1) + ' V';
+                dbCurrent.innerText = state.current.toFixed(2) + ' A';
+                dbPower.innerText = Math.round(state.power) + ' W';
+                dbEnergy.innerText = state.energy.toFixed(3) + ' kWh';
+                dbTemp.innerText = state.temperature.toFixed(1) + ' °C';
+                dbRelay1.innerText = state.relay1 ? 'true' : 'false';
+                dbRelay2.innerText = state.relay2 ? 'true' : 'false';
+                dbOverPower.innerText = state.overload ? 'true' : 'false';
 
-                // firebase path previews
-                fbVoltage.innerText = state.voltage;
-                fbCurrent.innerText = state.current;
-                fbPower.innerText = state.power;
-                fbEnergy.innerText = state.energy.toFixed(3);
-                fbTemp.innerText = state.temperature.toFixed(1);
-
-                // power bar fill (max consider 700W)
+                // power bar (max 700W for visual)
                 let percent = Math.min(100, (state.power / 700) * 100);
                 powerBar.style.width = percent + '%';
 
-                updateRelayUI();
-                updateAlert();
-
                 // timestamp
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second:'2-digit' });
                 liveTimestamp.innerHTML = `<i class="far fa-clock"></i> ${timeStr}`;
-                updateFooter.innerHTML = `<i class="fas fa-sync-alt" style="margin-right: 6px;"></i> last update: ${timeStr} · live mock`;
+                updateFooter.innerText = '⏱️ last update: ' + timeStr + ' (live simulation)';
             }
 
-            // simulate incoming data from ESP32 (random walk, but respecting relay logic from sketch)
-            function generateNextState() {
-                // mimic random variation similar to arduino sketch: voltage 210-240, current 1-5
-                let newVoltage = Math.floor(Math.random() * (240-210+1) + 210);
-                let newCurrent = Math.floor(Math.random() * 4 + 1);  // 1-4 A (more stable)
+            // generate random but plausible PZEM values (like real sensor)
+            function randomWalk() {
+                let newVoltage = 215 + Math.random() * 18; // 215-233V
+                let newCurrent = 1.2 + Math.random() * 3.5; // 1.2 - 4.7A
                 let newPower = newVoltage * newCurrent;
-                // energy accumulation approx (interval 5s -> 5/3600 hours)
-                let energyIncrement = (newPower / 1000.0) * (5 / 3600); 
-                let newEnergy = Math.max(0, state.energy + energyIncrement);
+                let energyInc = (newPower / 1000.0) * (5 / 3600); // 5 sec interval
+                let newEnergy = Math.max(0, state.energy + energyInc * (0.5 + Math.random())); // small variation
+                let newTemp = 23 + Math.random() * 6;
 
-                // temperature around 23-30
-                let newTemp = 23 + Math.random() * 7;
+                state.voltage = parseFloat(newVoltage.toFixed(1));
+                state.current = parseFloat(newCurrent.toFixed(2));
+                state.power = parseFloat(newPower.toFixed(0));
+                state.energy = parseFloat(newEnergy.toFixed(3));
+                state.temperature = parseFloat(newTemp.toFixed(1));
 
-                // relay/overload logic exactly from arduino:
-                let relay1 = false, relay2 = false, overload = false;
-                if (newPower <= 230) {
-                    relay1 = true;
-                    relay2 = false;
-                    overload = false;
-                } else if (newPower > 230 && newPower <= 460) {
-                    relay1 = false;
-                    relay2 = true;
-                    overload = false;
-                } else { // >460
-                    relay1 = false;
-                    relay2 = false;
-                    overload = true;
+                // apply relay logic exactly as arduino
+                if (state.power <= 230) {
+                    state.relay1 = true; state.relay2 = false; state.overload = false;
+                } else if (state.power > 230 && state.power <= 460) {
+                    state.relay1 = false; state.relay2 = true; state.overload = false;
+                } else {
+                    state.relay1 = false; state.relay2 = false; state.overload = true;
                 }
 
-                // update state
-                state.voltage = newVoltage;
-                state.current = newCurrent;
-                state.power = newPower;
-                state.energy = newEnergy;
-                state.temperature = newTemp;
-                state.relay1 = relay1;
-                state.relay2 = relay2;
-                state.overload = overload;
-
-                // update power history (keep last 6)
-                powerHistory.push(newPower);
+                // update history
+                powerHistory.push(state.power);
                 if (powerHistory.length > 6) powerHistory.shift();
                 sparkline.data.datasets[0].data = powerHistory;
                 sparkline.update();
 
-                refreshUI();
+                updateUI();
             }
 
-            // initial render
-            refreshUI();
-            // update sparkline with initial history
+            // initial update
+            applyRelayLogic();
+            updateUI();
             sparkline.data.datasets[0].data = powerHistory;
             sparkline.update();
 
-            // simulate realtime update every 5 seconds (same as arduino interval)
+            // 5-second interval (matches ESP32 loop delay)
             setInterval(() => {
-                generateNextState();
+                randomWalk();
             }, 5000);
-
-            // additionally, small randomize for temperature every 10 sec (already inside generate)
-            // but we call generateNextState every 5s, perfect.
-
-            // Add a tiny startup banner
-            generateNextState(); // extra random at start
         })();
     </script>
 </body>
